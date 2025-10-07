@@ -31,7 +31,7 @@ func setupTestRepo(t *testing.T) (string, func()) {
 	}
 
 	for _, cmd := range cmds {
-		c := exec.Command(cmd[0], cmd[1:]...)
+		c := exec.Command(cmd[0], cmd[1:]...) //nolint:gosec // G204: Test code with fixed command array
 		c.Dir = tmpDir
 		if err := c.Run(); err != nil {
 			cleanup()
@@ -47,7 +47,7 @@ func createAndStageFile(t *testing.T, repoPath, filename, content string) {
 	t.Helper()
 
 	filePath := filepath.Join(repoPath, filename)
-	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil { //nolint:gosec // G306: Test files don't need restrictive permissions
 		t.Fatalf("Failed to write file %s: %v", filename, err)
 	}
 
@@ -63,7 +63,7 @@ func modifyFile(t *testing.T, repoPath, filename, content string) {
 	t.Helper()
 
 	filePath := filepath.Join(repoPath, filename)
-	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil { //nolint:gosec // G306: Test files don't need restrictive permissions
 		t.Fatalf("Failed to modify file %s: %v", filename, err)
 	}
 }
