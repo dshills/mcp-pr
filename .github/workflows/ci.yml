@@ -108,6 +108,18 @@ jobs:
       - name: Verify module
         run: go list -m all
 
+      - name: Debug - List files
+        shell: bash
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "cmd directory:"
+          ls -la cmd/ || echo "cmd directory not found"
+          echo "cmd/mcp-code-review directory:"
+          ls -la cmd/mcp-code-review/ || echo "cmd/mcp-code-review directory not found"
+
       - name: Build
         shell: bash
         run: |
