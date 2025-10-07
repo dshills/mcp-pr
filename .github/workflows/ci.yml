@@ -35,19 +35,22 @@ jobs:
         run: go mod verify
 
       - name: Run unit tests
-        run: go test -v -race -coverprofile=coverage-unit.out ./tests/unit/...
+        shell: bash
+        run: go test -v -race -coverprofile=./coverage-unit.out ./tests/unit/...
 
       - name: Run contract tests
-        run: go test -v -race -coverprofile=coverage-contract.out ./tests/contract/...
+        shell: bash
+        run: go test -v -race -coverprofile=./coverage-contract.out ./tests/contract/...
 
       - name: Run integration tests
         if: matrix.os == 'ubuntu-latest'
+        shell: bash
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           if [ -n "$ANTHROPIC_API_KEY" ] || [ -n "$OPENAI_API_KEY" ]; then
-            go test -v -race -coverprofile=coverage-integration.out ./tests/integration/...
+            go test -v -race -coverprofile=./coverage-integration.out ./tests/integration/...
           else
             echo "Skipping integration tests - no API keys configured"
           fi
