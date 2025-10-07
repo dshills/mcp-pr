@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "MCP Code Review Server Tools",
+  "description": "Tool contracts for the MCP Code Review Server",
+  "tools": [
+    {
+      "name": "review_code",
+      "description": "Review arbitrary code text without requiring a git repository. Returns structured feedback on bugs, security issues, performance problems, style violations, and best practices.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The code to review",
+            "minLength": 1
+          },
+          "language": {
+            "type": "string",
+            "description": "Programming language hint (e.g., 'go', 'python', 'javascript'). Optional; will be auto-detected if not provided.",
+            "examples": ["go", "python", "javascript", "typescript", "rust", "java"]
+          },
+          "provider": {
+            "type": "string",
+            "description": "LLM provider to use for review",
+            "enum": ["anthropic", "openai", "google"],
+            "default": "anthropic"
+          },
+          "review_depth": {
+            "type": "string",
+            "description": "Depth of review analysis",
+            "enum": ["quick", "thorough"],
+            "default": "quick"
+          },
+          "focus_areas": {
+            "type": "array",
+            "description": "Specific areas to focus on. If empty, all areas are reviewed.",
+            "items": {
+              "type": "string",
+              "enum": ["bugs", "security", "performance", "style", "best-practices"]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": ["code"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "findings": {
+            "type": "array",
+            "description": "Array of identified issues",
+            "items": {
+              "$ref": "#/definitions/Finding"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "description": "Overall assessment of the code"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider that generated this review"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "description": "Time taken to generate review in milliseconds"
+          },
+          "metadata": {
+            "$ref": "#/definitions/ReviewMetadata"
+          }
+        },
+        "required": ["findings", "summary", "provider", "duration_ms"]
+      }
+    },
+    {
+      "name": "review_staged",
+      "description": "Review git staged changes (diff between staged area and HEAD). Useful for pre-commit review workflow.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_path": {
+            "type": "string",
+            "description": "Path to the git repository. Defaults to current working directory if not provided.",
+            "default": "."
+          },
+          "provider": {
+            "type": "string",
+            "description": "LLM provider to use for review",
+            "enum": ["anthropic", "openai", "google"],
+            "default": "anthropic"
+          },
+          "review_depth": {
+            "type": "string",
+            "description": "Depth of review analysis",
+            "enum": ["quick", "thorough"],
+            "default": "quick"
+          },
+          "focus_areas": {
+            "type": "array",
+            "description": "Specific areas to focus on",
+            "items": {
+              "type": "string",
+              "enum": ["bugs", "security", "performance", "style", "best-practices"]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Finding"
+            }
+          },
+          "summary": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "duration_ms": {
+            "type": "integer"
+          },
+          "metadata": {
+            "$ref": "#/definitions/ReviewMetadata"
+          }
+        },
+        "required": ["findings", "summary", "provider", "duration_ms"]
+      }
+    },
+    {
+      "name": "review_unstaged",
+      "description": "Review git unstaged changes (diff between working directory and HEAD). Useful for early feedback on work-in-progress code.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_path": {
+            "type": "string",
+            "description": "Path to the git repository",
+            "default": "."
+          },
+          "provider": {
+            "type": "string",
+            "description": "LLM provider to use for review",
+            "enum": ["anthropic", "openai", "google"],
+            "default": "anthropic"
+          },
+          "review_depth": {
+            "type": "string",
+            "description": "Depth of review analysis",
+            "enum": ["quick", "thorough"],
+            "default": "quick"
+          },
+          "focus_areas": {
+            "type": "array",
+            "description": "Specific areas to focus on",
+            "items": {
+              "type": "string",
+              "enum": ["bugs", "security", "performance", "style", "best-practices"]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Finding"
+            }
+          },
+          "summary": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "duration_ms": {
+            "type": "integer"
+          },
+          "metadata": {
+            "$ref": "#/definitions/ReviewMetadata"
+          }
+        },
+        "required": ["findings", "summary", "provider", "duration_ms"]
+      }
+    },
+    {
+      "name": "review_commit",
+      "description": "Review a specific git commit by SHA. Useful for auditing historical changes or learning from past commits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "repository_path": {
+            "type": "string",
+            "description": "Path to the git repository",
+            "default": "."
+          },
+          "commit_sha": {
+            "type": "string",
+            "description": "Git commit SHA to review (full or abbreviated)",
+            "minLength": 7,
+            "pattern": "^[0-9a-f]+$"
+          },
+          "provider": {
+            "type": "string",
+            "description": "LLM provider to use for review",
+            "enum": ["anthropic", "openai", "google"],
+            "default": "anthropic"
+          },
+          "review_depth": {
+            "type": "string",
+            "description": "Depth of review analysis",
+            "enum": ["quick", "thorough"],
+            "default": "quick"
+          },
+          "focus_areas": {
+            "type": "array",
+            "description": "Specific areas to focus on",
+            "items": {
+              "type": "string",
+              "enum": ["bugs", "security", "performance", "style", "best-practices"]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": ["commit_sha"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Finding"
+            }
+          },
+          "summary": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "duration_ms": {
+            "type": "integer"
+          },
+          "metadata": {
+            "$ref": "#/definitions/ReviewMetadata"
+          }
+        },
+        "required": ["findings", "summary", "provider", "duration_ms"]
+      }
+    }
+  ],
+  "definitions": {
+    "Finding": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["bug", "security", "performance", "style", "best-practice"],
+          "description": "Type of issue identified"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low", "info"],
+          "description": "Severity level of the issue"
+        },
+        "line": {
+          "type": ["integer", "null"],
+          "description": "Line number where issue occurs (null for file-level issues)"
+        },
+        "file_path": {
+          "type": "string",
+          "description": "Relative file path (for multi-file diffs)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Clear explanation of the issue"
+        },
+        "suggestion": {
+          "type": "string",
+          "description": "Actionable remediation advice"
+        },
+        "code_snippet": {
+          "type": "string",
+          "description": "Relevant code excerpt"
+        }
+      },
+      "required": ["category", "severity", "description", "suggestion"]
+    },
+    "ReviewMetadata": {
+      "type": "object",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["arbitrary", "staged", "unstaged", "commit"],
+          "description": "Source of code being reviewed"
+        },
+        "file_count": {
+          "type": "integer",
+          "description": "Number of files reviewed"
+        },
+        "line_count": {
+          "type": "integer",
+          "description": "Total lines of code reviewed"
+        },
+        "lines_added": {
+          "type": "integer",
+          "description": "Lines added (for git diffs)"
+        },
+        "lines_removed": {
+          "type": "integer",
+          "description": "Lines removed (for git diffs)"
+        },
+        "model": {
+          "type": "string",
+          "description": "Specific LLM model used"
+        }
+      },
+      "required": ["source_type"]
+    }
+  }
+}
