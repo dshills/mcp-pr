@@ -1,5 +1,10 @@
 # MCP Code Review Server
 
+[![CI](https://github.com/dshills/mcp-pr/actions/workflows/ci.yml/badge.svg)](https://github.com/dshills/mcp-pr/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dshills/mcp-pr)](https://goreportcard.com/report/github.com/dshills/mcp-pr)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/dshills/mcp-pr)](https://go.dev/doc/install)
+
 An intelligent code review server implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) that provides AI-powered code analysis using Anthropic Claude, OpenAI GPT, or Google Gemini.
 
 ## Quick Start
@@ -821,9 +826,29 @@ See [LICENSE](LICENSE) file for details.
 
 ---
 
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Code of Conduct
+
+This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+
+### Security
+
+For security vulnerabilities, please see our [Security Policy](SECURITY.md).
+
+---
+
 ## Support
 
-For issues, questions, or feature requests, please open an issue on GitHub.
+For issues, questions, or feature requests, please [open an issue](https://github.com/dshills/mcp-pr/issues/new/choose) on GitHub.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 

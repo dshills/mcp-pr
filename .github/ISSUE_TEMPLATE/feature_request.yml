@@ -1,0 +1,101 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please provide as much detail as possible to help us understand and evaluate your request.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the use case?
+      placeholder: As a developer, I need to review code in private repositories without sending it to third-party APIs...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this feature work? What should the API/interface look like?
+      placeholder: |
+        Add a new tool `review_code_local` that uses a local LLM:
+        ```json
+        {
+          "name": "review_code_local",
+          "arguments": {
+            "code": "...",
+            "model_path": "/path/to/local/model"
+          }
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternative solutions or features have you considered?
+      placeholder: |
+        - Running a local API server
+        - Using a different tool
+        - Manual review
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples
+      description: Are there similar features in other tools?
+      placeholder: |
+        - GitHub Copilot has local code analysis
+        - SonarQube provides local static analysis
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Nice to have
+        - Important
+        - Critical
+    validations:
+      required: true
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Would you like to implement this?
+      description: Are you willing to contribute a pull request?
+      options:
+        - "Yes, I'd like to implement this"
+        - "Yes, with guidance"
+        - "No, but I can help test"
+        - "No"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or mockups
+      placeholder: Attach screenshots, diagrams, or links
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: This feature aligns with the project's goals
+          required: true
+        - label: I have provided a clear use case
+          required: true

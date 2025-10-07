@@ -1,0 +1,132 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us diagnose and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+      placeholder: When I run the review_staged tool, it fails with...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Set up environment with...
+        2. Run command...
+        3. Observe error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: The tool should successfully review staged changes and return findings
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: The tool failed with error "repository_path not found"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: Relevant error messages or logs (remove API keys!)
+      render: shell
+      placeholder: |
+        {"time":"2025-10-07T10:00:00Z","level":"ERROR","msg":"Review failed","error":"..."}
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: LLM Provider
+      description: Which provider were you using?
+      options:
+        - Anthropic Claude
+        - OpenAI GPT
+        - Google Gemini
+        - Multiple providers
+        - N/A
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: MCP Code Review Server version
+      placeholder: v1.0.0 or commit SHA
+    validations:
+      required: true
+
+  - type: input
+    id: go-version
+    attributes:
+      label: Go Version
+      description: Output of `go version`
+      placeholder: go version go1.24.0 darwin/arm64
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: Which OS are you using?
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: Relevant configuration (remove API keys!)
+      render: bash
+      placeholder: |
+        export MCP_LOG_LEVEL=info
+        export MCP_DEFAULT_PROVIDER=anthropic
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem
+      placeholder: This started happening after upgrading to...
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have removed all sensitive information (API keys, credentials)
+          required: true
+        - label: I have included the version and environment details
+          required: true
