@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/dshills/mcp-pr/internal/config"
+	"github.com/dshills/mcp-pr/internal/credentials"
 	"github.com/dshills/mcp-pr/internal/logging"
 	"github.com/dshills/mcp-pr/internal/mcp"
 	"github.com/dshills/mcp-pr/internal/providers"
@@ -24,6 +25,15 @@ func main() {
 	logging.Init(cfg.LogLevel)
 
 	ctx := context.Background()
+
+	// Validate credentials before any logging
+	validator := credentials.NewValidator()
+	if err := validator.ValidateAll(cfg.AnthropicAPIKey, cfg.OpenAIAPIKey, cfg.GoogleAPIKey); err != nil {
+		logging.Error(ctx, "Invalid API credentials", "error", err)
+		fmt.Fprintf(os.Stderr, "Error: Invalid API credentials:\n%v\n", err)
+		os.Exit(1)
+	}
+
 	logging.Info(ctx, "Starting MCP Code Review Server",
 		"version", "1.0.0",
 		"default_provider", cfg.DefaultProvider,
