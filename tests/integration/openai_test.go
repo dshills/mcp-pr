@@ -15,6 +15,9 @@ func TestOpenAIIntegration(t *testing.T) {
 		t.Skip("OPENAI_API_KEY not set, skipping integration test")
 	}
 
-	provider := providers.NewOpenAIProvider(apiKey, 30*time.Second)
+	provider, err := providers.NewOpenAIProvider(apiKey, 30*time.Second)
+	if err != nil {
+		t.Fatalf("NewOpenAIProvider() error = %v", err)
+	}
 	testProviderIntegration(t, provider, "openai")
 }

@@ -17,12 +17,16 @@ type OpenAIProvider struct {
 }
 
 // NewOpenAIProvider creates a new OpenAI provider
-func NewOpenAIProvider(apiKey string, timeout time.Duration) *OpenAIProvider {
+func NewOpenAIProvider(apiKey string, timeout time.Duration) (*OpenAIProvider, error) {
+	if apiKey == "" {
+		return nil, fmt.Errorf("openai API key is required")
+	}
+
 	client := openai.NewClient(option.WithAPIKey(apiKey))
 	return &OpenAIProvider{
 		client:  &client,
 		timeout: timeout,
-	}
+	}, nil
 }
 
 // Review analyzes code using GPT

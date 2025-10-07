@@ -43,15 +43,23 @@ func main() {
 	providerMap := make(map[string]review.Provider)
 
 	if cfg.AnthropicAPIKey != "" {
-		anthropicProvider := providers.NewAnthropicProvider(cfg.AnthropicAPIKey, cfg.AnthropicTimeout)
-		providerMap["anthropic"] = anthropicProvider
-		logging.Info(ctx, "Initialized Anthropic provider")
+		anthropicProvider, err := providers.NewAnthropicProvider(cfg.AnthropicAPIKey, cfg.AnthropicTimeout)
+		if err != nil {
+			logging.Error(ctx, "Failed to initialize Anthropic provider", "error", err)
+		} else {
+			providerMap["anthropic"] = anthropicProvider
+			logging.Info(ctx, "Initialized Anthropic provider")
+		}
 	}
 
 	if cfg.OpenAIAPIKey != "" {
-		openaiProvider := providers.NewOpenAIProvider(cfg.OpenAIAPIKey, cfg.OpenAITimeout)
-		providerMap["openai"] = openaiProvider
-		logging.Info(ctx, "Initialized OpenAI provider")
+		openaiProvider, err := providers.NewOpenAIProvider(cfg.OpenAIAPIKey, cfg.OpenAITimeout)
+		if err != nil {
+			logging.Error(ctx, "Failed to initialize OpenAI provider", "error", err)
+		} else {
+			providerMap["openai"] = openaiProvider
+			logging.Info(ctx, "Initialized OpenAI provider")
+		}
 	}
 
 	if cfg.GoogleAPIKey != "" {

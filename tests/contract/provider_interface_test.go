@@ -78,7 +78,10 @@ func TestProviderInterfaceContract(t *testing.T) {
 
 // TestAnthropicProviderContract tests that Anthropic provider implements the interface
 func TestAnthropicProviderContract(t *testing.T) {
-	provider := providers.NewAnthropicProvider("test-key", 30*time.Second)
+	provider, err := providers.NewAnthropicProvider("test-key", 30*time.Second)
+	if err != nil {
+		t.Fatalf("NewAnthropicProvider() error = %v", err)
+	}
 
 	// Verify it implements Provider interface
 	var _ providers.Provider = provider
@@ -94,7 +97,10 @@ func TestAnthropicProviderContract(t *testing.T) {
 
 // TestOpenAIProviderContract tests that OpenAI provider implements the interface
 func TestOpenAIProviderContract(t *testing.T) {
-	provider := providers.NewOpenAIProvider("test-key", 30*time.Second)
+	provider, err := providers.NewOpenAIProvider("test-key", 30*time.Second)
+	if err != nil {
+		t.Fatalf("NewOpenAIProvider() error = %v", err)
+	}
 
 	// Verify it implements Provider interface
 	var _ providers.Provider = provider

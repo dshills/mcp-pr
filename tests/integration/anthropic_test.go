@@ -15,6 +15,9 @@ func TestAnthropicIntegration(t *testing.T) {
 		t.Skip("ANTHROPIC_API_KEY not set, skipping integration test")
 	}
 
-	provider := providers.NewAnthropicProvider(apiKey, 30*time.Second)
+	provider, err := providers.NewAnthropicProvider(apiKey, 30*time.Second)
+	if err != nil {
+		t.Fatalf("NewAnthropicProvider() error = %v", err)
+	}
 	testProviderIntegration(t, provider, "anthropic")
 }

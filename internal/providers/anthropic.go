@@ -18,12 +18,16 @@ type AnthropicProvider struct {
 }
 
 // NewAnthropicProvider creates a new Anthropic provider
-func NewAnthropicProvider(apiKey string, timeout time.Duration) *AnthropicProvider {
+func NewAnthropicProvider(apiKey string, timeout time.Duration) (*AnthropicProvider, error) {
+	if apiKey == "" {
+		return nil, fmt.Errorf("anthropic API key is required")
+	}
+
 	client := anthropic.NewClient(option.WithAPIKey(apiKey))
 	return &AnthropicProvider{
 		client:  &client,
 		timeout: timeout,
-	}
+	}, nil
 }
 
 // Review analyzes code using Claude
