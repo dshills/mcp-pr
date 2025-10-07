@@ -1,0 +1,64 @@
+version: "2"
+
+run:
+  timeout: 5m               # Maximum time golangci-lint will run
+  concurrency: 4            # Number of parallel linters to run
+  tests: true               # Include test files in analysis
+  skip-dirs:
+    - vendor                # Skip vendor directory
+
+linters:
+  enable:
+    - cyclop                # checks function and package cyclomatic complexity
+    - errcheck              # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
+    - gocritic              # provides diagnostics that check for bugs, performance and style issues
+    - govet                 # reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
+    - ineffassign           # detects when assignments to existing variables are not used
+    - misspell
+    - revive                # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
+    - staticcheck           # is a go vet on steroids, applying a ton of static analysis checks
+    - unconvert             # removes unnecessary type conversions
+    - dupl                  # Duplicate code detection
+    - gosec                 # Security checks (can be noisy)
+
+  disable:
+    - unused
+    - gocognit              # Cognitive complexity
+
+  issues:
+    max-issues-per-linter: 50
+    max-same-issues: 3
+    exclude-use-default: false
+
+  output:
+    format: colored-line-number
+
+  settings:
+    cyclop:
+        # The maximal code complexity to report.
+        # Default: 10
+        max-complexity: 30
+        # The maximal average package complexity.
+        # If it's higher than 0.0 (float) the check is enabled.
+        # Default: 0.0
+        package-average: 10.0
+
+    revive:
+      # Sets the default severity.
+      # See https://github.com/mgechev/revive#configuration
+      # Default: warning
+      severity: error
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: error-naming
+        - name: exported
+        - name: increment-decrement
+        - name: var-naming
+        - name: range
+        - name: receiver-naming
+        - name: indent-error-flow
+        - name: superfluous-else
