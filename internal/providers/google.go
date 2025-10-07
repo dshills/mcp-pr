@@ -45,7 +45,7 @@ func (p *GoogleProvider) Review(ctx context.Context, req review.Request) (*revie
 	defer cancel()
 
 	// Get Gemini model
-	model := p.client.GenerativeModel("gemini-1.5-flash")
+	model := p.client.GenerativeModel("gemini-2.5-flash")
 
 	// Call Gemini API
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
@@ -75,7 +75,7 @@ func (p *GoogleProvider) Review(ctx context.Context, req review.Request) (*revie
 		Duration: duration,
 		Metadata: &review.Metadata{
 			SourceType: req.SourceType,
-			Model:      "gemini-1.5-flash",
+			Model:      "gemini-2.5-flash",
 		},
 	}, nil
 }
