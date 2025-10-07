@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        go: ['1.24']
+        go: ['1.23']
 
     steps:
       - name: Checkout code
@@ -72,7 +72,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.23'
           cache: true
 
       - name: Run golangci-lint
@@ -87,7 +87,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        go: ['1.24']
+        go: ['1.23']
 
     steps:
       - name: Checkout code
@@ -99,8 +99,29 @@ jobs:
           go-version: ${{ matrix.go }}
           cache: true
 
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Verify module
+        run: go list -m all
+
       - name: Build
-        run: go build -v -o mcp-code-review${{ matrix.os == 'windows-latest' && '.exe' || '' }} ./cmd/mcp-code-review
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            go build -v -o mcp-code-review.exe ./cmd/mcp-code-review
+          else
+            go build -v -o mcp-code-review ./cmd/mcp-code-review
+          fi
+
+      - name: Test binary
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            file mcp-code-review.exe || ls -lh mcp-code-review.exe
+          else
+            file mcp-code-review || ls -lh mcp-code-review
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
