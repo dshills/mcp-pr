@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dshills/mcp-pr/internal/git"
 	"github.com/dshills/mcp-pr/internal/logging"
 )
 
@@ -41,6 +42,12 @@ func (e *Engine) Review(ctx context.Context, req Request) (*Response, error) {
 	if err := req.Validate(); err != nil {
 		logging.Error(ctx, "Invalid review request", "error", err)
 		return nil, fmt.Errorf("invalid request: %w", err)
+	}
+
+	// Populate Code field from git if needed
+	if err := e.populateCodeFromGit(&req); err != nil {
+		logging.Error(ctx, "Failed to get git diff", "error", err)
+		return nil, fmt.Errorf("failed to get git diff: %w", err)
 	}
 
 	// Select provider
@@ -126,4 +133,43 @@ func (e *Engine) ListProviders() []string {
 		}
 	}
 	return names
+}
+
+// populateCodeFromGit retrieves git diff and populates the Code field
+func (e *Engine) populateCodeFromGit(req *Request) error {
+	// Skip if not a git-based request
+	if req.SourceType == "arbitrary" {
+		return nil
+	}
+
+	// Skip if Code is already populated
+	if req.Code != "" {
+		return nil
+	}
+
+	// Create git client
+	client := git.NewClient(req.RepositoryPath)
+
+	// Get appropriate diff based on source type
+	var diff string
+	var err error
+
+	switch req.SourceType {
+	case "staged":
+		diff, err = client.GetStagedDiff()
+	case "unstaged":
+		diff, err = client.GetUnstagedDiff()
+	case "commit":
+		diff, err = client.GetCommitDiff(req.CommitSHA)
+	default:
+		return fmt.Errorf("unsupported source type: %s", req.SourceType)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	// Populate the Code field with diff
+	req.Code = diff
+	return nil
 }

@@ -64,40 +64,77 @@ func (s *Server) handleReviewCode(ctx context.Context, req *mcp.CallToolRequest)
 
 // handleReviewStaged handles the review_staged tool request
 func (s *Server) handleReviewStaged(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	logging.Info(ctx, "Handling review_staged request")
-
-	// TODO: Implement git staged diff retrieval (Task T029-T033)
-	return &mcp.CallToolResult{
-		IsError: true,
-		Content: []mcp.Content{&mcp.TextContent{
-			Text: "review_staged not yet implemented (User Story 2 - Tasks T029-T033)",
-		}},
-	}, nil
+	return s.handleGitReview(ctx, req, "staged")
 }
 
 // handleReviewUnstaged handles the review_unstaged tool request
 func (s *Server) handleReviewUnstaged(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	logging.Info(ctx, "Handling review_unstaged request")
-
-	// TODO: Implement git unstaged diff retrieval (Task T037-T039)
-	return &mcp.CallToolResult{
-		IsError: true,
-		Content: []mcp.Content{&mcp.TextContent{
-			Text: "review_unstaged not yet implemented (User Story 3 - Tasks T037-T039)",
-		}},
-	}, nil
+	return s.handleGitReview(ctx, req, "unstaged")
 }
 
 // handleReviewCommit handles the review_commit tool request
 func (s *Server) handleReviewCommit(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	logging.Info(ctx, "Handling review_commit request")
 
-	// TODO: Implement git commit diff retrieval (Task T042-T045)
+	// Parse arguments
+	var args struct {
+		RepositoryPath string `json:"repository_path"`
+		CommitSHA      string `json:"commit_sha"`
+		Provider       string `json:"provider,omitempty"`
+		ReviewDepth    string `json:"review_depth,omitempty"`
+	}
+
+	if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+		return nil, fmt.Errorf("failed to parse arguments: %w", err)
+	}
+
+	// Validate required arguments
+	if args.RepositoryPath == "" {
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: "repository_path is required"}},
+		}, nil
+	}
+
+	if args.CommitSHA == "" {
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: "commit_sha is required"}},
+		}, nil
+	}
+
+	if args.ReviewDepth == "" {
+		args.ReviewDepth = "quick"
+	}
+
+	// Build review request
+	reviewReq := review.Request{
+		SourceType:     "commit",
+		RepositoryPath: args.RepositoryPath,
+		CommitSHA:      args.CommitSHA,
+		Provider:       args.Provider,
+		ReviewDepth:    args.ReviewDepth,
+		Language:       "diff",
+	}
+
+	// Perform review (engine will populate Code from git)
+	resp, err := s.engine.Review(ctx, reviewReq)
+	if err != nil {
+		logging.Error(ctx, "Review failed", "error", err)
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Review failed: %v", err)}},
+		}, nil
+	}
+
+	// Format response as JSON content
+	jsonData, err := json.MarshalIndent(formatReviewResponse(resp), "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("failed to format response: %w", err)
+	}
+
 	return &mcp.CallToolResult{
-		IsError: true,
-		Content: []mcp.Content{&mcp.TextContent{
-			Text: "review_commit not yet implemented (User Story 4 - Tasks T042-T045)",
-		}},
+		Content: []mcp.Content{&mcp.TextContent{Text: string(jsonData)}},
 	}, nil
 }
 
@@ -160,4 +197,61 @@ func formatReviewResponse(resp *review.Response) map[string]interface{} {
 	}
 
 	return result
+}
+
+// handleGitReview is a helper function for git-based review operations (staged, unstaged)
+func (s *Server) handleGitReview(ctx context.Context, req *mcp.CallToolRequest, sourceType string) (*mcp.CallToolResult, error) {
+	logging.Info(ctx, fmt.Sprintf("Handling review_%s request", sourceType))
+
+	// Parse arguments
+	var args struct {
+		RepositoryPath string `json:"repository_path"`
+		Provider       string `json:"provider,omitempty"`
+		ReviewDepth    string `json:"review_depth,omitempty"`
+	}
+
+	if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+		return nil, fmt.Errorf("failed to parse arguments: %w", err)
+	}
+
+	// Validate required arguments
+	if args.RepositoryPath == "" {
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: "repository_path is required"}},
+		}, nil
+	}
+
+	if args.ReviewDepth == "" {
+		args.ReviewDepth = "quick"
+	}
+
+	// Build review request
+	reviewReq := review.Request{
+		SourceType:     sourceType,
+		RepositoryPath: args.RepositoryPath,
+		Provider:       args.Provider,
+		ReviewDepth:    args.ReviewDepth,
+		Language:       "diff",
+	}
+
+	// Perform review (engine will populate Code from git)
+	resp, err := s.engine.Review(ctx, reviewReq)
+	if err != nil {
+		logging.Error(ctx, "Review failed", "error", err)
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{&mcp.TextContent{Text: fmt.Sprintf("Review failed: %v", err)}},
+		}, nil
+	}
+
+	// Format response as JSON content
+	jsonData, err := json.MarshalIndent(formatReviewResponse(resp), "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("failed to format response: %w", err)
+	}
+
+	return &mcp.CallToolResult{
+		Content: []mcp.Content{&mcp.TextContent{Text: string(jsonData)}},
+	}, nil
 }

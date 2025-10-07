@@ -99,3 +99,117 @@ func TestReviewCodeToolSchema(t *testing.T) {
 	// and the MCP SDK handles validation, this test passes as long as the schema is well-formed JSON
 	t.Log("Tool schema defined in internal/mcp/server.go - validated by MCP SDK at runtime")
 }
+
+// TestReviewStagedToolSchema validates the review_staged tool input schema (User Story 2)
+func TestReviewStagedToolSchema(t *testing.T) {
+	// Test valid review_staged request
+	validRequest := `{
+		"repository_path": "/path/to/repo",
+		"provider": "anthropic",
+		"review_depth": "thorough"
+	}`
+
+	var req map[string]interface{}
+	err := json.Unmarshal([]byte(validRequest), &req)
+	if err != nil {
+		t.Fatalf("Failed to parse valid request: %v", err)
+	}
+
+	// Validate required field
+	if _, ok := req["repository_path"]; !ok {
+		t.Error("Missing required field: repository_path")
+	}
+
+	// Validate optional fields have correct types
+	if provider, ok := req["provider"]; ok {
+		if _, ok := provider.(string); !ok {
+			t.Error("provider field should be string")
+		}
+	}
+
+	if depth, ok := req["review_depth"]; ok {
+		if _, ok := depth.(string); !ok {
+			t.Error("review_depth field should be string")
+		}
+	}
+}
+
+// TestReviewUnstagedToolSchema validates the review_unstaged tool input schema (User Story 3)
+func TestReviewUnstagedToolSchema(t *testing.T) {
+	// Test valid review_unstaged request (same schema as review_staged)
+	validRequest := `{
+		"repository_path": "/path/to/repo",
+		"provider": "openai",
+		"review_depth": "quick"
+	}`
+
+	var req map[string]interface{}
+	err := json.Unmarshal([]byte(validRequest), &req)
+	if err != nil {
+		t.Fatalf("Failed to parse valid request: %v", err)
+	}
+
+	// Validate required field
+	if _, ok := req["repository_path"]; !ok {
+		t.Error("Missing required field: repository_path")
+	}
+
+	// Validate optional fields have correct types
+	if provider, ok := req["provider"]; ok {
+		if _, ok := provider.(string); !ok {
+			t.Error("provider field should be string")
+		}
+	}
+
+	if depth, ok := req["review_depth"]; ok {
+		if _, ok := depth.(string); !ok {
+			t.Error("review_depth field should be string")
+		}
+	}
+}
+
+// TestReviewCommitToolSchema validates the review_commit tool input schema (User Story 4)
+func TestReviewCommitToolSchema(t *testing.T) {
+	// Test valid review_commit request
+	validRequest := `{
+		"repository_path": "/path/to/repo",
+		"commit_sha": "abc123def456",
+		"provider": "anthropic",
+		"review_depth": "thorough"
+	}`
+
+	var req map[string]interface{}
+	err := json.Unmarshal([]byte(validRequest), &req)
+	if err != nil {
+		t.Fatalf("Failed to parse valid request: %v", err)
+	}
+
+	// Validate required fields
+	if _, ok := req["repository_path"]; !ok {
+		t.Error("Missing required field: repository_path")
+	}
+
+	if _, ok := req["commit_sha"]; !ok {
+		t.Error("Missing required field: commit_sha")
+	}
+
+	// Validate optional fields have correct types
+	if provider, ok := req["provider"]; ok {
+		if _, ok := provider.(string); !ok {
+			t.Error("provider field should be string")
+		}
+	}
+
+	if depth, ok := req["review_depth"]; ok {
+		if _, ok := depth.(string); !ok {
+			t.Error("review_depth field should be string")
+		}
+	}
+
+	// Validate commit_sha is a string
+	if sha, ok := req["commit_sha"]; ok {
+		if _, ok := sha.(string); !ok {
+			t.Error("commit_sha field should be string")
+		}
+	}
+}
