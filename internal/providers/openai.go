@@ -47,7 +47,7 @@ func (p *OpenAIProvider) Review(ctx context.Context, req review.Request) (*revie
 			openai.SystemMessage(systemPrompt),
 			openai.UserMessage(userPrompt),
 		},
-		Model: openai.ChatModelGPT4o,
+		Model: openai.ChatModelGPT4oMini,
 	})
 
 	if err != nil {
@@ -72,7 +72,7 @@ func (p *OpenAIProvider) Review(ctx context.Context, req review.Request) (*revie
 		Duration: duration,
 		Metadata: &review.Metadata{
 			SourceType: req.SourceType,
-			Model:      "gpt-4o",
+			Model:      "gpt-4o-mini",
 		},
 	}, nil
 }

@@ -43,7 +43,7 @@ func (p *AnthropicProvider) Review(ctx context.Context, req review.Request) (*re
 
 	// Call Claude API
 	message, err := p.client.Messages.New(ctx, anthropic.MessageNewParams{
-		Model:     anthropic.ModelClaude3_7Sonnet20250219, // Latest non-deprecated model
+		Model:     anthropic.ModelClaudeSonnet4_5, // Claude Sonnet 4.5
 		MaxTokens: 4096,
 		Messages: []anthropic.MessageParam{
 			anthropic.NewUserMessage(anthropic.NewTextBlock(prompt)),
@@ -74,7 +74,7 @@ func (p *AnthropicProvider) Review(ctx context.Context, req review.Request) (*re
 		Duration: duration,
 		Metadata: &review.Metadata{
 			SourceType: req.SourceType,
-			Model:      "claude-3-7-sonnet-20250219",
+			Model:      "claude-sonnet-4-5",
 		},
 	}, nil
 }
