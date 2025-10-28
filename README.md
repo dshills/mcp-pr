@@ -105,8 +105,14 @@ export MCP_LOG_LEVEL=info          # debug|info|warn|error (default: info)
 # Provider selection
 export MCP_DEFAULT_PROVIDER=anthropic  # anthropic|openai|google (default: anthropic)
 
-# Timeouts
-export MCP_REVIEW_TIMEOUT=30s      # Provider API timeout (default: 30s)
+# Timeouts (increased defaults for reliability)
+export MCP_REVIEW_TIMEOUT=120s     # Overall review timeout (default: 120s)
+export ANTHROPIC_TIMEOUT=90s       # Anthropic API timeout (default: 90s)
+export OPENAI_TIMEOUT=90s          # OpenAI API timeout (default: 90s)
+export GOOGLE_TIMEOUT=90s          # Google API timeout (default: 90s)
+
+# Diff size limits
+export MCP_MAX_DIFF_SIZE=10000     # Max diff size in bytes (default: 10000)
 ```
 
 ### MCP Client Configuration
@@ -649,12 +655,16 @@ mcp-pr/
 
 #### Review Engine (`internal/review/`)
 - Orchestrates review workflow
-- Manages provider selection
-- Implements retry logic with exponential backoff
+- Manages provider selection and failover
+- Implements retry logic (1 retry = 2 total attempts)
+- Validates diff size limits before sending to LLM
 - Populates code from git for git-based reviews
+- Progress logging throughout review lifecycle
 
 #### Git Client (`internal/git/`)
-- Wraps git commands (diff, show, rev-parse)
+- Wraps git commands (diff, show, rev-parse) with context-aware timeouts
+- 30s timeout for diff operations (prevents hanging on slow filesystems)
+- 10s timeout for validation operations
 - Parses unified diff format
 - Extracts file paths, line numbers, and changes
 
@@ -695,21 +705,58 @@ git init
 
 ---
 
-### "Provider timeout"
+### "Provider timeout" or "Operation timed out"
 
-**Problem**: Review fails with timeout error
+**Problem**: Review fails with timeout error after 90-120 seconds
 
-**Solution**: Increase timeout:
+**Solution**: The server now has improved timeout handling with these defaults:
+- Provider API timeouts: **90s** (up from 30s)
+- Git operation timeouts: **30s** (prevents hanging on slow filesystems)
+- Overall review timeout: **120s** (up from 30s)
+
+If you still experience timeouts, you can increase them:
 ```bash
-export MCP_REVIEW_TIMEOUT=60s  # Increase from default 30s
+# Increase provider timeout to 180s
+export ANTHROPIC_TIMEOUT=180s
+export OPENAI_TIMEOUT=180s
+export GOOGLE_TIMEOUT=180s
+
+# Or increase overall review timeout
+export MCP_REVIEW_TIMEOUT=300s
 ```
 
-Or use `quick` review depth for faster responses:
-```json
-{
-  "review_depth": "quick"
-}
-```
+**Alternative solutions**:
+1. Use `quick` review depth for faster responses (default)
+2. Review smaller diffs (break large changes into smaller commits)
+3. Increase `MCP_MAX_DIFF_SIZE` if hitting size limits:
+   ```bash
+   export MCP_MAX_DIFF_SIZE=50000  # Increase from default 10000 bytes
+   ```
+
+**Note**: Git operations (diff, show) now have built-in 30s timeouts to prevent indefinite hangs on network filesystems or large repositories.
+
+---
+
+### "Diff size exceeds maximum allowed size"
+
+**Problem**: Review fails with "diff size (X bytes) exceeds maximum allowed size (10000 bytes)"
+
+**Solution**: This is a safety limit to prevent timeouts on very large diffs. You have three options:
+
+1. **Increase the limit** (recommended for legitimate large diffs):
+   ```bash
+   export MCP_MAX_DIFF_SIZE=50000  # Increase to 50KB
+   ```
+
+2. **Break changes into smaller commits**:
+   ```bash
+   git add -p  # Stage changes interactively in smaller chunks
+   git commit -m "Part 1: ..."
+   ```
+
+3. **Review specific files** separately using `review_code` tool instead of git-based reviews
+
+**Note**: Very large diffs (>50KB) may still cause timeouts even with increased limits. Consider reviewing critical files separately.
 
 ---
 
@@ -766,10 +813,35 @@ go test ./tests/contract/...  # Run only contract tests
 
 ## Performance Tips
 
+### Timeout Improvements (v1.1.0+)
+
+The server now includes several optimizations to prevent timeouts:
+
+- **Increased default timeouts**: Provider APIs now have 90s (up from 30s)
+- **Git operation timeouts**: 30s limit prevents indefinite hangs on slow filesystems
+- **Reduced retry attempts**: 1 retry (down from 3) minimizes worst-case delays
+- **Diff size validation**: 10KB default limit prevents oversized requests
+- **Progress logging**: Visibility into review stages for debugging
+
+### Best Practices
+
 1. **Use `quick` review depth** for faster feedback (default)
 2. **Choose faster providers**: Anthropic Claude is generally fastest
 3. **Review smaller diffs**: Break large changes into smaller commits
-4. **Cache provider responses**: Consider implementing caching layer for repeated reviews
+   ```bash
+   # Stage files selectively
+   git add file1.go file2.go
+   git commit -m "Part 1: Core logic"
+
+   git add file3.go file4.go
+   git commit -m "Part 2: Tests"
+   ```
+4. **Monitor diff sizes**: Keep diffs under 10KB for best performance
+5. **Increase timeouts for complex reviews**: Use `thorough` depth with longer timeouts:
+   ```bash
+   export ANTHROPIC_TIMEOUT=180s
+   export MCP_REVIEW_TIMEOUT=300s
+   ```
 
 ---
 
