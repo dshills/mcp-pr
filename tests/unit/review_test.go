@@ -69,7 +69,7 @@ func TestEngineReviewSuccess(t *testing.T) {
 		"mock": provider,
 	}
 
-	engine := review.NewEngine(providers, "mock")
+	engine := review.NewEngine(providers, "mock", 10000)
 
 	ctx := context.Background()
 	req := review.Request{
@@ -103,7 +103,7 @@ func TestEngineReviewSuccess(t *testing.T) {
 // TestEngineReviewProviderNotFound tests error when provider doesn't exist
 func TestEngineReviewProviderNotFound(t *testing.T) {
 	providers := map[string]review.Provider{}
-	engine := review.NewEngine(providers, "default")
+	engine := review.NewEngine(providers, "default", 10000)
 
 	ctx := context.Background()
 	req := review.Request{
@@ -134,7 +134,7 @@ func TestEngineReviewProviderUnavailable(t *testing.T) {
 		"mock": provider,
 	}
 
-	engine := review.NewEngine(providers, "mock")
+	engine := review.NewEngine(providers, "mock", 10000)
 
 	ctx := context.Background()
 	req := review.Request{
@@ -166,7 +166,7 @@ func TestEngineReviewRetry(t *testing.T) {
 		"mock": provider,
 	}
 
-	engine := review.NewEngine(providers, "mock")
+	engine := review.NewEngine(providers, "mock", 10000)
 
 	ctx := context.Background()
 	req := review.Request{
@@ -180,10 +180,10 @@ func TestEngineReviewRetry(t *testing.T) {
 		t.Fatal("Review() error = nil, want error after retries")
 	}
 
-	// Should have tried 1 initial attempt + 3 retries = 4 total
-	expectedCalls := 4
+	// Should have tried 1 initial attempt + 1 retry = 2 total
+	expectedCalls := 2
 	if provider.callCount != expectedCalls {
-		t.Errorf("Provider called %d times, want %d (1 initial + 3 retries)", provider.callCount, expectedCalls)
+		t.Errorf("Provider called %d times, want %d (1 initial + 1 retry)", provider.callCount, expectedCalls)
 	}
 }
 
@@ -202,7 +202,7 @@ func TestEngineReviewRetrySuccess(t *testing.T) {
 		available: true,
 		reviewFunc: func(ctx context.Context, req review.Request) (*review.Response, error) {
 			callCount++
-			if callCount < 3 {
+			if callCount < 2 {
 				return nil, errors.New("temporary error")
 			}
 			return mockResp, nil
@@ -213,7 +213,7 @@ func TestEngineReviewRetrySuccess(t *testing.T) {
 		"mock": provider,
 	}
 
-	engine := review.NewEngine(providers, "mock")
+	engine := review.NewEngine(providers, "mock", 10000)
 
 	ctx := context.Background()
 	req := review.Request{
@@ -231,8 +231,8 @@ func TestEngineReviewRetrySuccess(t *testing.T) {
 		t.Fatal("Review() returned nil response")
 	}
 
-	if callCount != 3 {
-		t.Errorf("Provider called %d times, want 3 (2 failures + 1 success)", callCount)
+	if callCount != 2 {
+		t.Errorf("Provider called %d times, want 2 (1 failure + 1 success)", callCount)
 	}
 }
 
@@ -269,7 +269,7 @@ func TestEngineReviewMultipleProviders(t *testing.T) {
 		"provider2": provider2,
 	}
 
-	engine := review.NewEngine(providers, "provider1")
+	engine := review.NewEngine(providers, "provider1", 10000)
 
 	ctx := context.Background()
 
@@ -325,7 +325,7 @@ func TestEngineReviewContextCancellation(t *testing.T) {
 		"mock": provider,
 	}
 
-	engine := review.NewEngine(providers, "mock")
+	engine := review.NewEngine(providers, "mock", 10000)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately

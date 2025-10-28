@@ -33,11 +33,11 @@ func Load() (*Config, error) {
 		GoogleAPIKey:     os.Getenv("GOOGLE_API_KEY"),
 		LogLevel:         getEnv("MCP_LOG_LEVEL", "info"),
 		DefaultProvider:  getEnv("MCP_DEFAULT_PROVIDER", "anthropic"),
-		ReviewTimeout:    parseDuration(getEnv("MCP_REVIEW_TIMEOUT", "30s"), 30*time.Second),
+		ReviewTimeout:    parseDuration(getEnv("MCP_REVIEW_TIMEOUT", "120s"), 120*time.Second),
 		MaxDiffSize:      parseInt(getEnv("MCP_MAX_DIFF_SIZE", "10000"), 10000),
-		AnthropicTimeout: parseDuration(getEnv("ANTHROPIC_TIMEOUT", "30s"), 30*time.Second),
-		OpenAITimeout:    parseDuration(getEnv("OPENAI_TIMEOUT", "30s"), 30*time.Second),
-		GoogleTimeout:    parseDuration(getEnv("GOOGLE_TIMEOUT", "30s"), 30*time.Second),
+		AnthropicTimeout: parseDuration(getEnv("ANTHROPIC_TIMEOUT", "90s"), 90*time.Second),
+		OpenAITimeout:    parseDuration(getEnv("OPENAI_TIMEOUT", "90s"), 90*time.Second),
+		GoogleTimeout:    parseDuration(getEnv("GOOGLE_TIMEOUT", "90s"), 90*time.Second),
 	}
 
 	// Validate at least one API key is present

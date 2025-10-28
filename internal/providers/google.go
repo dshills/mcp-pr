@@ -50,6 +50,9 @@ func (p *GoogleProvider) Review(ctx context.Context, req review.Request) (*revie
 	// Call Gemini API
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return nil, fmt.Errorf("google API call timed out after %v", p.timeout)
+		}
 		return nil, fmt.Errorf("google API error: %w", err)
 	}
 

@@ -83,9 +83,10 @@ func main() {
 	}
 
 	// Create review engine
-	engine := review.NewEngine(providerMap, cfg.DefaultProvider)
+	engine := review.NewEngine(providerMap, cfg.DefaultProvider, cfg.MaxDiffSize)
 	logging.Info(ctx, "Review engine initialized",
 		"providers", engine.ListProviders(),
+		"max_diff_size", cfg.MaxDiffSize,
 	)
 
 	// Create MCP server

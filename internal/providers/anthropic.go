@@ -51,6 +51,9 @@ func (p *AnthropicProvider) Review(ctx context.Context, req review.Request) (*re
 	})
 
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return nil, fmt.Errorf("anthropic API call timed out after %v", p.timeout)
+		}
 		return nil, fmt.Errorf("anthropic API error: %w", err)
 	}
 

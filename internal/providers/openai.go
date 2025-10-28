@@ -51,6 +51,9 @@ func (p *OpenAIProvider) Review(ctx context.Context, req review.Request) (*revie
 	})
 
 	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return nil, fmt.Errorf("openai API call timed out after %v", p.timeout)
+		}
 		return nil, fmt.Errorf("openai API error: %w", err)
 	}
 
