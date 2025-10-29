@@ -422,7 +422,7 @@ make dev
 
 ```bash
 # Enable debug logging
-export MCP_LOG_LEVEL=debug
+export MCP_PR_LOG_LEVEL=debug
 
 # Run with verbose output
 go test -v ./tests/...
