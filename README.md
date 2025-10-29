@@ -100,19 +100,19 @@ export GOOGLE_API_KEY="..."
 
 ```bash
 # Logging
-export MCP_LOG_LEVEL=info          # debug|info|warn|error (default: info)
+export MCP_PR_LOG_LEVEL=info          # debug|info|warn|error (default: info)
 
 # Provider selection
-export MCP_DEFAULT_PROVIDER=anthropic  # anthropic|openai|google (default: anthropic)
+export MCP_PR_DEFAULT_PROVIDER=anthropic  # anthropic|openai|google (default: anthropic)
 
 # Timeouts (increased defaults for reliability)
-export MCP_REVIEW_TIMEOUT=120s     # Overall review timeout (default: 120s)
-export ANTHROPIC_TIMEOUT=90s       # Anthropic API timeout (default: 90s)
-export OPENAI_TIMEOUT=90s          # OpenAI API timeout (default: 90s)
-export GOOGLE_TIMEOUT=90s          # Google API timeout (default: 90s)
+export MCP_PR_REVIEW_TIMEOUT=120s     # Overall review timeout (default: 120s)
+export ANTHROPIC_TIMEOUT=90s          # Anthropic API timeout (default: 90s)
+export OPENAI_TIMEOUT=90s             # OpenAI API timeout (default: 90s)
+export GOOGLE_TIMEOUT=90s             # Google API timeout (default: 90s)
 
 # Diff size limits
-export MCP_MAX_DIFF_SIZE=10000     # Max diff size in bytes (default: 10000)
+export MCP_PR_MAX_DIFF_SIZE=10000     # Max diff size in bytes (default: 10000)
 ```
 
 ### MCP Client Configuration
@@ -132,6 +132,44 @@ If using Claude Desktop or another MCP client, add this server to your configura
     }
   }
 }
+```
+
+---
+
+## Migration from v0.x
+
+**Environment Variable Updates**: In recent versions, we renamed environment variables to be project-specific to avoid conflicts with other MCP servers.
+
+### Variable Name Changes
+
+| Old Name (Deprecated) | New Name | Status |
+|-----------------------|----------|--------|
+| `MCP_LOG_LEVEL` | `MCP_PR_LOG_LEVEL` | ⚠️ Deprecated, will be removed in v1.0.0 |
+| `MCP_DEFAULT_PROVIDER` | `MCP_PR_DEFAULT_PROVIDER` | ⚠️ Deprecated, will be removed in v1.0.0 |
+| `MCP_REVIEW_TIMEOUT` | `MCP_PR_REVIEW_TIMEOUT` | ⚠️ Deprecated, will be removed in v1.0.0 |
+| `MCP_MAX_DIFF_SIZE` | `MCP_PR_MAX_DIFF_SIZE` | ⚠️ Deprecated, will be removed in v1.0.0 |
+
+### What You Need to Do
+
+**If you're upgrading from v0.x:**
+1. Update your environment variable names from `MCP_*` to `MCP_PR_*`
+2. Old names still work but will log deprecation warnings
+3. New names take precedence if both are set
+
+**What Stays the Same:**
+- ✅ API key variables remain unchanged: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`
+- ✅ Provider-specific timeouts remain unchanged: `ANTHROPIC_TIMEOUT`, `OPENAI_TIMEOUT`, `GOOGLE_TIMEOUT`
+
+**Example Migration:**
+
+```bash
+# Old configuration (still works with warnings)
+export MCP_LOG_LEVEL=info
+export MCP_DEFAULT_PROVIDER=anthropic
+
+# New configuration (recommended)
+export MCP_PR_LOG_LEVEL=info
+export MCP_PR_DEFAULT_PROVIDER=anthropic
 ```
 
 ---
