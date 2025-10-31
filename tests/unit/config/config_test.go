@@ -234,7 +234,7 @@ func TestConfigLoad_ReviewTimeout(t *testing.T) {
 		{
 			name:     "neither set - default value",
 			envVars:  map[string]string{"ANTHROPIC_API_KEY": "test-key"},
-			expected: 120 * time.Second,
+			expected: 240 * time.Second,
 		},
 	}
 
@@ -289,7 +289,7 @@ func TestConfigLoad_MaxDiffSize(t *testing.T) {
 		{
 			name:     "neither set - default value",
 			envVars:  map[string]string{"ANTHROPIC_API_KEY": "test-key"},
-			expected: 10000,
+			expected: 200000,
 		},
 	}
 
@@ -419,17 +419,17 @@ func TestConfigLoad_ProviderTimeouts(t *testing.T) {
 				"ANTHROPIC_TIMEOUT": "120s",
 			},
 			expectedAntropic: 120 * time.Second,
-			expectedOpenAI:   90 * time.Second,
-			expectedGoogle:   90 * time.Second,
+			expectedOpenAI:   240 * time.Second,
+			expectedGoogle:   240 * time.Second,
 		},
 		{
 			name: "default values when not set",
 			envVars: map[string]string{
 				"ANTHROPIC_API_KEY": "test-key",
 			},
-			expectedAntropic: 90 * time.Second,
-			expectedOpenAI:   90 * time.Second,
-			expectedGoogle:   90 * time.Second,
+			expectedAntropic: 240 * time.Second,
+			expectedOpenAI:   240 * time.Second,
+			expectedGoogle:   240 * time.Second,
 		},
 	}
 

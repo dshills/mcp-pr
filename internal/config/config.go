@@ -34,11 +34,11 @@ func Load() (*Config, error) {
 		GoogleAPIKey:     os.Getenv("GOOGLE_API_KEY"),
 		LogLevel:         GetEnvWithFallback("MCP_PR_LOG_LEVEL", "MCP_LOG_LEVEL", "info"),
 		DefaultProvider:  GetEnvWithFallback("MCP_PR_DEFAULT_PROVIDER", "MCP_DEFAULT_PROVIDER", "anthropic"),
-		ReviewTimeout:    parseDuration(GetEnvWithFallback("MCP_PR_REVIEW_TIMEOUT", "MCP_REVIEW_TIMEOUT", "120s"), 120*time.Second),
-		MaxDiffSize:      parseInt(GetEnvWithFallback("MCP_PR_MAX_DIFF_SIZE", "MCP_MAX_DIFF_SIZE", "10000"), 10000),
-		AnthropicTimeout: parseDuration(getEnv("ANTHROPIC_TIMEOUT", "90s"), 90*time.Second),
-		OpenAITimeout:    parseDuration(getEnv("OPENAI_TIMEOUT", "90s"), 90*time.Second),
-		GoogleTimeout:    parseDuration(getEnv("GOOGLE_TIMEOUT", "90s"), 90*time.Second),
+		ReviewTimeout:    parseDuration(GetEnvWithFallback("MCP_PR_REVIEW_TIMEOUT", "MCP_REVIEW_TIMEOUT", "240s"), 240*time.Second),
+		MaxDiffSize:      parseInt(GetEnvWithFallback("MCP_PR_MAX_DIFF_SIZE", "MCP_MAX_DIFF_SIZE", "200000"), 200000),
+		AnthropicTimeout: parseDuration(getEnv("ANTHROPIC_TIMEOUT", "240s"), 240*time.Second),
+		OpenAITimeout:    parseDuration(getEnv("OPENAI_TIMEOUT", "240s"), 240*time.Second),
+		GoogleTimeout:    parseDuration(getEnv("GOOGLE_TIMEOUT", "240s"), 240*time.Second),
 	}
 
 	// Validate at least one API key is present
